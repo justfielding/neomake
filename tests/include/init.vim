@@ -321,8 +321,23 @@ let g:sleep_maker = NeomakeTestsCommandMaker('sleep-maker', 'sleep .05; echo sle
 let g:error_maker = NeomakeTestsCommandMaker('error-maker', 'echo error; false')
 let g:error_maker.errorformat = '%E%m'
 let g:success_maker = NeomakeTestsCommandMaker('success-maker', 'echo success')
+<<<<<<< HEAD
 let g:true_maker = NeomakeTestsCommandMaker('true-maker', 'true')
+||||||| parent of 7b93b3b3... Experimental: add autolinting support
+=======
+let g:entry_maker = {}
+function! g:entry_maker.get_list_entries(jobinfo) abort
+  return get(g:, 'neomake_test_getlistentries', [
+  \   {'text': 'error', 'lnum': 1, 'type': 'E'}])
+endfunction
+>>>>>>> 7b93b3b3... Experimental: add autolinting support
 let g:doesnotexist_maker = {'exe': 'doesnotexist'}
+let g:sleep_entry_maker = {}
+function! g:sleep_entry_maker.get_list_entries(jobinfo) abort
+  sleep 10m
+  return get(g:, 'neomake_test_getlistentries', [
+  \   {'text': 'slept', 'lnum': 1}])
+endfunction
 
 " A maker that generates incrementing errors.
 let g:neomake_test_inc_maker_counter = 0
@@ -352,6 +367,11 @@ function! s:After()
   if exists('g:neomake_tests_highlight_lengths')
     " Undo monkeypatch.
     runtime autoload/neomake/highlights.vim
+  endif
+
+  if exists('#neomake_automake')
+    au! neomake_automake
+    au! neomake_automake_update
   endif
 
   Restore
