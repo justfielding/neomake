@@ -202,6 +202,7 @@ function! s:MakeJob(make_id, options) abort
                     \ maker.name), jobinfo)
         let entries = maker.get_list_entries(jobinfo)
         call s:ProcessEntries(jobinfo, entries)
+        let jobinfo.finished = 1
         call s:CleanJobinfo(jobinfo)
         return jobinfo
     endif
@@ -1149,6 +1150,7 @@ function! s:clean_make_info(make_id) abort
     if !empty(make_info.active_jobs) || !empty(make_info.queued_jobs)
         return
     endif
+    call neomake#utils#DebugMessage('Cleaning make info.', make_info)
     " Remove make_id from its window.
     let [t, w] = s:GetTabWinForMakeId(a:make_id)
     let make_ids = s:gettabwinvar(t, w, 'neomake_make_ids', [])
@@ -1176,6 +1178,11 @@ function! s:clean_make_info(make_id) abort
                 call delete(dir, 'd')
             endfor
         endif
+    endif
+
+    let buf_prev_make = getbufvar(make_info.options.bufnr, 'neomake_automake_make_id')
+    if !empty(buf_prev_make) && buf_prev_make == a:make_id
+        call setbufvar(make_info.options.bufnr, 'neomake_automake_make_id', '')
     endif
 
     unlet s:make_info[a:make_id]
